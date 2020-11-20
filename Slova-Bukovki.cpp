@@ -21,8 +21,14 @@ int main()
     bool success = false;
     bool used_or_not_cifry[10] = { false };
     short int tablica[26] ;        // -2 значит там нет числа -1 не определено
-    for (int i = 0; i < 26; i++)
+    for (int i = 0; i < 25; i += 5)
+    {
         tablica[i] = -2;
+        tablica[i + 1] = -2;//развертка цикла
+        tablica[i + 2] = -2;
+        tablica[i + 3] = -2;
+        tablica[i + 4] = -2;
+    }
     for (int i = 0; i < N && str[i] != '\n'; i++)
     {
         if (str[i] >= 'A' && str[i] <= 'Z')
@@ -67,19 +73,21 @@ bool try_find_answer(bool* used_or_not_cifry, short int* tablica, bool success, 
                 suc_here = check_this_answer(tablica, str);
                 if (suc_here == true)
                 {
+                    //вынесение инварианта
                     for (int j = 0; j < N && str[j] != 0 && str[j] != '/n'; j++)
                     {
-                        if (str[j] == '=' || str[j] == '+')
-                            printf("%c", str[j]);
+                        char ch = str[j];
+                        if (ch == '=' || ch == '+')
+                            printf("%c", ch);
                         else {
-                            int temp = (int)str[j];
+                            int temp = (int)ch;
                             temp -= 65;
                             temp = tablica[temp];
                             printf("%d", temp);
                         }
                     }
                     return true;
-            }
+                }
             }
             else {
                 suc_here=try_find_answer(used_or_not_cifry, tablica, success, skolko_bukavok_isp, str);
@@ -103,25 +111,27 @@ bool check_this_answer(short int* tablica, char* str)
     long long int left_side = 0, next_plus = 0, right_side = 0;
     int mnoj = 1;
     int i = 0;
-    for (i = 0; i < N && str[i]!='\n'; i++)
+    for (i = 0; i < N && str[i] != '\n'; i++)
     {
-        if (str[i] == '+')
+        //вынесение инварианта
+        char ch = str[i];
+        if (ch == '+')
         {
             mnoj = 1;
             left_side += next_plus;
             next_plus = 0;
         }
-        else if (str[i] == '=')
+        else if (ch == '=')
         {
             left_side += next_plus;
             next_plus = 0;
             break;
         }
         else {
-            int temp = (int)str[i];
+            int temp = (int)ch;
             temp -= 65;
             temp = tablica[temp];
-            if ((temp == 0 && mnoj == 1) || str[i] <65 || str[i] >90)
+            if ((temp == 0 && mnoj == 1 && str[i + 1] >= 65 && str[i + 1] <= 90) || ch < 65 || ch >90)
             {
                 return false;
             }
@@ -130,6 +140,7 @@ bool check_this_answer(short int* tablica, char* str)
             mnoj += 1;
         }
     }
+
 
     i++;
     for (; i < N && str[i] != '\n' && str[i] != 0; i++)
@@ -146,7 +157,9 @@ bool check_this_answer(short int* tablica, char* str)
             right_side += temp;
             mnoj += 1;
     }
-    if (right_side == left_side)
-        return true;
-    else return false;
+    //оптимизация перехода
+     /*if (right_side == left_side)
+         return true;
+     else return false;*/
+    return (right_side == left_side);
 }
